@@ -4,66 +4,117 @@ const lights = {
     green: document.querySelector('.green')
 };
 
-const sequence = [
-    { light: 'red', duration: 3000 },
-    { light: 'yellow', duration: 1500 },
-    { light: 'green', duration: 3000 },
-    { light: 'yellow', duration: 1500 }
-];
+let sequence = [];
 
 let current = 0;
 let timer = null;
 let isRunning = false;
-let isPaused = false;
 
-function clearLights() {
-    Object.values(lights).forEach(light => {
+function updateTimers(){
+
+    const redTime =
+        Number(document.querySelector('#redTime').value);
+
+    const yellowTime =
+        Number(document.querySelector('#yellowTime').value);
+
+    const greenTime =
+        Number(document.querySelector('#greenTime').value);
+
+    if(
+        redTime <= 0 ||
+        yellowTime <= 0 ||
+        greenTime <= 0
+    ){
+        return;
+    }
+
+    sequence = [
+        {
+            light:'red',
+            duration:redTime * 1000
+        },
+        {
+            light:'yellow',
+            duration:yellowTime * 1000
+        },
+        {
+            light:'green',
+            duration:greenTime * 1000
+        },
+        {
+            light:'yellow',
+            duration:yellowTime * 1000
+        }
+    ];
+}
+
+function clearLights(){
+    Object.values(lights).forEach(light=>{
         light.classList.remove('active');
     });
 }
 
-function runTraffic() {
-    if (!isRunning) return;
+function runTraffic(){
+
+    if(!isRunning) return;
 
     clearLights();
 
     let active = sequence[current];
+
     lights[active.light].classList.add('active');
 
-    timer = setTimeout(() => {
-        current = (current + 1) % sequence.length;
+    timer = setTimeout(()=>{
+
+        current =
+            (current + 1) %
+            sequence.length;
+
         runTraffic();
+
     }, active.duration);
 }
 
-function startTraffic() {
-    if (isRunning) return;
+function startTraffic(){
+
+    if(isRunning) return;
+
+    updateTimers();
 
     isRunning = true;
-    isPaused = false;
+
     runTraffic();
 }
 
-function pauseTraffic() {
-    if (!isRunning) return;
+function pauseTraffic(){
+
+    if(!isRunning) return;
 
     clearTimeout(timer);
+
     isRunning = false;
-    isPaused = true;
 }
 
-function stopTraffic() {
+function stopTraffic(){
+
     clearTimeout(timer);
 
     isRunning = false;
-    isPaused = false;
+
     current = 0;
 
     clearLights();
 }
 
+document
+    .querySelector('#start')
+    .addEventListener('click', startTraffic);
 
-// button hookups
-document.querySelector("#start").addEventListener("click", startTraffic);
-document.querySelector("#pause").addEventListener("click", pauseTraffic);
-document.querySelector("#stop").addEventListener("click", stopTraffic);
+document
+    .querySelector('#pause')
+    .addEventListener('click', pauseTraffic);
+
+document
+    .querySelector('#stop')
+    .addEventListener('click', stopTraffic);
